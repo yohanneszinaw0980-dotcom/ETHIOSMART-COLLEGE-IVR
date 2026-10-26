@@ -44,6 +44,12 @@ jobs:
         pip install --upgrade pip
         pip install --upgrade buildozer cython==0.29.36
 
+    - name: Prepare Android SDK and Accept Licenses
+      run: |
+        mkdir -p ~/.buildozer/android/platform/android-sdk
+        # SDK ማውረጃ እና የፈቃድ ማረጋገጫ ክፍተት እንዳይኖር በቅድሚያ ማዘጋጀት
+        yes | buildozer --version || true
+
     - name: Build APK with Buildozer
       run: |
         buildozer -v android debug

@@ -44,6 +44,12 @@ jobs:
         pip install --upgrade pip
         pip install --upgrade buildozer cython==0.29.36
 
+    - name: Pre-install Android SDK Build-Tools and Platform
+      run: |
+        ANDROID_HOME="/home/runner/.buildozer/android/platform/android-sdk"
+        mkdir -p $ANDROID_HOME
+        sdkmanager --sdk_root=$ANDROID_HOME --install "build-tools;33.0.0" "platforms;android-31" || true
+
     - name: Build APK with Buildozer
       run: |
         buildozer -v android debug

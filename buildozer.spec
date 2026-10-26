@@ -37,8 +37,7 @@ version = 0.1
 
 # (list) Application requirements
 # comma separated e.g. requirements = sqlite3,kivy
-# [ማስተካከያ 1]: የተሳሳተው 'pyt' ተወግዷል፤ የሚያስፈልገዎትን ትክክለኛ ፓኬጅ እዚህ ጋር ማስገባት ይችላሉ።
-requirements = python3,kivy
+requirements = python3,kivy,pyt
 
 # (str) Custom source folders for requirements
 # Sets custom source for any requirements with recipes
@@ -102,20 +101,19 @@ fullscreen = 0
 #android.features = android.hardware.usb.host
 
 # (int) Target Android API, should be as high as possible.
-android.api = 31
+#android.api = 31
 
 # (int) Minimum API your APK / AAB will support.
-android.minapi = 21
+#android.minapi = 21
 
 # (int) Android SDK version to use
 #android.sdk = 20
 
-# [ማስተካከያ 2]: Buildozer ከሚጠይቀው NDK ስሪት ጋር እንዲጣጣም የተስተካከለ
 # (str) Android NDK version to use
-android.ndk_version = 25b
+#android.ndk = 23b
 
 # (int) Android NDK API to use. This is the minimum API your app will support, it should usually match android.minapi.
-android.ndk_api = 21
+#android.ndk_api = 21
 
 # (bool) Use --private data storage (True) or --dir public storage (False)
 #android.private_storage = True
@@ -138,7 +136,7 @@ android.ndk_api = 21
 # agreements. This is intended for automation only. If set to False,
 # the default, you will be shown the license when first running
 # buildozer.
-android.accept_sdk_license = True
+# android.accept_sdk_license = False
 
 # (str) Android entry point, default is ok for Kivy-based app
 #android.entrypoint = org.kivy.android.PythonActivity
@@ -284,10 +282,12 @@ android.accept_sdk_license = True
 #android.copy_libs = 1
 
 # (list) The Android archs to build for, choices: armeabi-v7a, arm64-v8a, x86, x86_64
+# In past, was `android.arch` as we weren't supporting builds for multiple archs at the same time.
 android.archs = arm64-v8a, armeabi-v7a
 
 # (int) overrides automatic versionCode computation (used in build.gradle)
-#android.numeric_version = 1
+# this is not the same as app version and should only be edited if you know what you're doing
+# android.numeric_version = 1
 
 # (bool) enables Android auto backup feature (Android API >=23)
 android.allow_backup = True
@@ -297,7 +297,9 @@ android.allow_backup = True
 
 # (str) If you need to insert variables into your AndroidManifest.xml file,
 # you can do so with the manifestPlaceholders property.
-#android.manifest_placeholders = [:]
+# This property takes a map of key-value pairs. (via a string)
+# Usage example : android.manifest_placeholders = [myCustomUrl:\"org.kivy.customurl\"]
+# android.manifest_placeholders = [:]
 
 # (bool) Skip byte compile for .py files
 # android.no-byte-compile-python = False
@@ -340,10 +342,16 @@ android.allow_backup = True
 #p4a.port =
 
 # Control passing the --use-setup-py vs --ignore-setup-py to p4a
+# "in the future" --use-setup-py is going to be the default behaviour in p4a, right now it is not
+# Setting this to false will pass --ignore-setup-py, true will pass --use-setup-py
+# NOTE: this is general setuptools integration, having pyproject.toml is enough, no need to generate
+# setup.py if you're using Poetry, but you need to add "toml" to source.include_exts.
 #p4a.setup_py = false
 
 # (str) extra command line arguments to pass when invoking pythonforandroid.toolchain
 #p4a.extra_args =
+
+
 
 #
 # iOS specific
@@ -351,15 +359,45 @@ android.allow_backup = True
 
 # (str) Path to a custom kivy-ios folder
 #ios.kivy_ios_dir = ../kivy-ios
+# Alternately, specify the URL and branch of a git checkout:
 ios.kivy_ios_url = https://github.com/kivy/kivy-ios
 ios.kivy_ios_branch = master
 
 # Another platform dependency: ios-deploy
+# Uncomment to use a custom checkout
+#ios.ios_deploy_dir = ../ios_deploy
+# Or specify URL and branch
 ios.ios_deploy_url = https://github.com/phonegap/ios-deploy
 ios.ios_deploy_branch = 1.10.0
 
 # (bool) Whether or not to sign the code
 ios.codesign.allowed = false
+
+# (str) Name of the certificate to use for signing the debug version
+# Get a list of available identities: buildozer ios list_identities
+#ios.codesign.debug = "iPhone Developer: <lastname> <firstname> (<hexstring>)"
+
+# (str) The development team to use for signing the debug version
+#ios.codesign.development_team.debug = <hexstring>
+
+# (str) Name of the certificate to use for signing the release version
+#ios.codesign.release = %(ios.codesign.debug)s
+
+# (str) The development team to use for signing the release version
+#ios.codesign.development_team.release = <hexstring>
+
+# (str) URL pointing to .ipa file to be installed
+# This option should be defined along with `display_image_url` and `full_size_image_url` options.
+#ios.manifest.app_url =
+
+# (str) URL pointing to an icon (57x57px) to be displayed during download
+# This option should be defined along with `app_url` and `full_size_image_url` options.
+#ios.manifest.display_image_url =
+
+# (str) URL pointing to a large icon (512x512px) to be used by iTunes
+# This option should be defined along with `app_url` and `display_image_url` options.
+#ios.manifest.full_size_image_url =
+
 
 [buildozer]
 
@@ -368,3 +406,47 @@ log_level = 2
 
 # (int) Display warning if buildozer is run as root (0 = False, 1 = True)
 warn_on_root = 1
+
+# (str) Path to build artifact storage, absolute or relative to spec file
+# build_dir = ./.buildozer
+
+# (str) Path to build output (i.e. .apk, .aab, .ipa) storage
+# bin_dir = ./bin
+
+#    -----------------------------------------------------------------------------
+#    List as sections
+#
+#    You can define all the "list" as [section:key].
+#    Each line will be considered as a option to the list.
+#    Let's take [app] / source.exclude_patterns.
+#    Instead of doing:
+#
+#[app]
+#source.exclude_patterns = license,data/audio/*.wav,data/images/original/*
+#
+#    This can be translated into:
+#
+#[app:source.exclude_patterns]
+#license
+#data/audio/*.wav
+#data/images/original/*
+#
+
+
+#    -----------------------------------------------------------------------------
+#    Profiles
+#
+#    You can extend section / key with a profile
+#    For example, you want to deploy a demo version of your application without
+#    HD content. You could first change the title to add "(demo)" in the name
+#    and extend the excluded directories to remove the HD content.
+#
+#[app@demo]
+#title = My Application (demo)
+#
+#[app:source.exclude_patterns@demo]
+#images/hd/*
+#
+#    Then, invoke the command line with the "demo" profile:
+#
+#buildozer --profile demo android debug

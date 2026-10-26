@@ -11,51 +11,14 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
-    - name: Set up Python
-      uses: actions/setup-python@v5
+    - name: Build with Buildozer
+      uses: kivy/buildozer-action@main
+      id: buildozer
       with:
-        python-version: '3.10'
+        filename: buildozer.spec
 
-    - name: Set up Java
-      uses: actions/setup-java@v4
-      with:
-        distribution: 'temurin'
-        java-version: '17'
-
-    - name: Install System Dependencies
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y \
-            git \
-            zip \
-            unzip \
-            autoconf \
-            libtool \
-            pkg-config \
-            zlib1g-dev \
-            libncurses5-dev \
-            libncursesw5-dev \
-            libffi-dev \
-            libssl-dev \
-            ant
-
-    - name: Install Python Packages
-      run: |
-        pip install --upgrade pip
-        pip install --upgrade buildozer cython==0.29.36
-
-    - name: Pre-install Android SDK Build-Tools and Platform
-      run: |
-        ANDROID_HOME="/home/runner/.buildozer/android/platform/android-sdk"
-        mkdir -p $ANDROID_HOME
-        sdkmanager --sdk_root=$ANDROID_HOME --install "build-tools;33.0.0" "platforms;android-31" || true
-
-    - name: Build APK with Buildozer
-      run: |
-        buildozer -v android debug
-
-    - name: Upload APK Artifact
+    - name: Upload APK
       uses: actions/upload-artifact@v4
       with:
         name: package
-        path: ./bin/*.apk
+        path: bin/*.apk

@@ -12,10 +12,9 @@ jobs:
     - uses: actions/checkout@v4
 
     - name: Build with Buildozer
-      uses: kivy/buildozer-action@main
-      id: buildozer
+      uses: Skymatic/buildozer-action@v2
       with:
-        filename: buildozer.spec
+        target: android-debug
 
     - name: Upload APK
       uses: actions/upload-artifact@v4

@@ -44,7 +44,20 @@ jobs:
         pip install --upgrade pip
         pip install --upgrade buildozer cython==0.29.36
 
-    - name: Build APK with Buildozer
+    - name: Initial Buildozer Run (To Download SDK/NDK)
+      run: |
+        buildozer -v android debug || true
+
+    - name: Install missing Build-Tools and Aidl
+      run: |
+        ANDROID_HOME="$HOME/.buildozer/android/platform/android-sdk"
+        CMDLINE_TOOLS="$ANDROID_HOME/cmdline-tools/latest/bin"
+        if [ -f "$CMDLINE_TOOLS/sdkmanager" ]; then
+          yes | "$CMDLINE_TOOLS/sdkmanager" --licenses || true
+          "$CMDLINE_TOOLS/sdkmanager" "build-tools;33.0.0" "platforms;android-31"
+        fi
+
+    - name: Final Build APK with Buildozer
       run: |
         buildozer -v android debug
 

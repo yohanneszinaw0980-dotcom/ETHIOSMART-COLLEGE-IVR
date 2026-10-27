@@ -44,17 +44,21 @@ jobs:
         pip install --upgrade pip
         pip install --upgrade buildozer cython==0.29.36
 
-    - name: Initial Buildozer Run (To Download SDK/NDK)
+    - name: Prepare Android SDK and Build-Tools (Fixes Aidl Error)
       run: |
+        # 1. የመጀመሪያውን Buildozer ትዕዛዝ በማስኬድ SDK እንዲፈጠር ማድረግ
         buildozer -v android debug || true
-
-    - name: Install missing Build-Tools and Aidl
-      run: |
+        
+        # 2. የ Android SDK እና cmdline-tools ትክክለኛ አድራሻ መፈለግ
         ANDROID_HOME="$HOME/.buildozer/android/platform/android-sdk"
-        CMDLINE_TOOLS="$ANDROID_HOME/cmdline-tools/latest/bin"
-        if [ -f "$CMDLINE_TOOLS/sdkmanager" ]; then
-          yes | "$CMDLINE_TOOLS/sdkmanager" --licenses || true
-          "$CMDLINE_TOOLS/sdkmanager" "build-tools;33.0.0" "platforms;android-31"
+        CMDLINE_TOOLS=$(find $ANDROID_HOME -name "sdkmanager" | head -n 1)
+        
+        if [ -n "$CMDLINE_TOOLS" ]; then
+          echo "Found sdkmanager at: $CMDLINE_TOOLS"
+          yes | "$CMDLINE_TOOLS" --licenses || true
+          "$CMDLINE_TOOLS" "build-tools;33.0.0" "platforms;android-31"
+        else
+          echo "sdkmanager not found, but continuing..."
         fi
 
     - name: Final Build APK with Buildozer

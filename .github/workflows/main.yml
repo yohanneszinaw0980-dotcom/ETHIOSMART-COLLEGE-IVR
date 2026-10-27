@@ -44,6 +44,25 @@ jobs:
         pip install --upgrade pip
         pip install --upgrade buildozer cython==0.29.36
 
+    - name: Force Install Android SDK and Build-Tools (Fixes Aidl Error)
+      env:
+        REPO_OS_OVERRIDE: "linux"
+      run: |
+        ANDROID_HOME="$HOME/.buildozer/android/platform/android-sdk"
+        mkdir -p "$ANDROID_HOME/cmdline-tools/latest"
+        
+        # የ Android commandline-tools በቀጥታ ከጎግል ማውረድ እና ማዋቀር
+        wget -q https://dl.google.com/android/repository/commandlinetools-linux-9477386_latest.zip -O cmdline-tools.zip
+        unzip -q cmdline-tools.zip -d temp_tools
+        rm -rf "$ANDROID_HOME/cmdline-tools/latest/*"
+        mv temp_tools/cmdline-tools/* "$ANDROID_HOME/cmdline-tools/latest/"
+        rm -rf cmdline-tools.zip temp_tools
+
+        # የፈቃድ ስምምነቶችን ማረጋገጥ እና aidl (build-tools) መጫን
+        export PATH="$ANDROID_HOME/cmdline-tools/latest/bin:$PATH"
+        yes | sdkmanager --sdk_root="$ANDROID_HOME" --licenses || true
+        sdkmanager --sdk_root="$ANDROID_HOME" "platforms;android-33" "build-tools;33.0.0" "platform-tools"
+
     - name: Build APK with Buildozer
       env:
         REPO_OS_OVERRIDE: "linux"

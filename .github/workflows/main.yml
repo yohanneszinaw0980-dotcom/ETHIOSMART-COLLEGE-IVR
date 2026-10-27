@@ -11,80 +11,13 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
-    - name: Set up Python
-      uses: actions/setup-python@v5
+    - name: Build with Buildozer
+      uses: Skymatic/buildozer-action@v2
       with:
-        python-version: '3.10'
+        target: android-debug
 
-    - name: Set up Java
-      uses: actions/setup-java@v4
-      with:
-        distribution: 'temurin'
-        java-version: '17'
-
-    - name: Install System Dependencies
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y \
-            git \
-            zip \
-            unzip \
-            autoconf \
-            libtool \
-            pkg-config \
-            zlib1g-dev \
-            libncurses5-dev \
-            libncursesw5-dev \
-            libffi-dev \
-            libssl-dev \
-            ant
-
-    - name: Install Python Packages
-      run: |
-        pip install --upgrade pip
-        pip install --upgrade buildozer cython==0.29.36
-
-    - name: Pre-install Android SDK, Build-Tools and Fix Aidl
-      env:
-        REPO_OS_OVERRIDE: "linux"
-      run: |
-        # 1. የ Android SDK ፎልደሮችን አስቀድሞ ማዘጋጀት
-        ANDROID_HOME="$HOME/.buildozer/android/platform/android-sdk"
-        mkdir -p "$ANDROID_HOME"
-        
-        # 2. የ Buildozer የመጀመሪያ ውቅር እንዲፈጠር ማድረግ
-        buildozer -v android debug || true
-        
-        # 3. የ sdkmanager መኖሩን አረጋግጦ build-tools (aidl) እና platforms በግድ መጫን
-        CMDLINE_TOOLS=$(find "$ANDROID_HOME" -name "sdkmanager" | head -n 1)
-        if [ -n "$CMDLINE_TOOLS" ]; then
-          echo "Found sdkmanager at: $CMDLINE_TOOLS"
-          yes | "$CMDLINE_TOOLS" --sdk_root="$ANDROID_HOME" --licenses || true
-          "$CMDLINE_TOOLS" --sdk_root="$ANDROID_HOME" "build-tools;33.0.0" "platforms;android-31"
-        else
-          echo "sdkmanager not found via find, installing commandline-tools manually..."
-          mkdir -p "$ANDROID_HOME/cmdline-tools/latest"
-          wget -q https://dl.google.com/android/repository/commandlinetools-linux-9477386_latest.zip -O cmdline-tools.zip
-          unzip -q cmdline-tools.zip -d temp_tools
-          mv temp_tools/cmdline-tools/* "$ANDROID_HOME/cmdline-tools/latest/"
-          rm -rf cmdline-tools.zip temp_tools
-          
-          # የትዕዛዝ መስሪያ መሳሪያዎችን በመጠቀም aidl/build-tools መጫን
-          yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --sdk_root="$ANDROID_HOME" --licenses || true
-          "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --sdk_root="$ANDROID_HOME" "build-tools;33.0.0" "platforms;android-31"
-        fi
-
-    - name: Final Build APK with Buildozer
-      env:
-        REPO_OS_OVERRIDE: "linux"
-      run: |
-        buildozer -v android debug
-
-    - name: Upload APK Artifact
+    - name: Upload APK
       uses: actions/upload-artifact@v4
       with:
         name: package
-        path: ./bin/*.apk
-```[cite: 15]
-
-ይህንን ኮድ ሙሉ በሙሉ ገልብጠው ፋይልዎ ላይ ካስቀመጡት በኋላ ሲያስቀምጡት (Commit ሲያደርጉት)፣ የጎደለውን `aidl` እና `sdkmanager` ችግር በራሱ በሰርቨሩ ላይ በቅድሚያ አስተካክሎ አፕሊኬሽንዎን ያለ ምንም ስህተት APK አድርጎ ያወጣለታል።
+        path: bin/*.apk

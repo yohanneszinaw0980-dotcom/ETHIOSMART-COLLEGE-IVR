@@ -1,57 +1,46 @@
-name: Build Android APK
+[app]
 
-on:
-  push:
-    branches: [ main ]
-  workflow_dispatch:
+# (str) Title of your application
+title = EthioSmart College IVR
 
-jobs:
-  build:
-    runs-on: ubuntu-latest
+# (str) Package name
+package.name = ethiosmartcollegeivr
 
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+# (str) Package domain (needed for android packaging)
+package.domain = org.ethiosmart
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.10'
+# (list) Source files to include (let it empty to include all files)
+source.include_exts = py,png,jpg,kv,atlas
 
-      - name: Install dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y \
-              git \
-              python3-pip \
-              build-essential \
-              libffi-dev \
-              libssl-dev \
-              zlib1g-dev \
-              openjdk-17-jdk \
-              unzip \
-              zip \
-              autoconf \
-              libtool \
-              pkg-config \
-              libncurses5-dev \
-              libncursesw5-dev \
-              libltdl-dev
+# (list) List of directory to include/exclude from source files
+source.include_dirs = 
 
-      - name: Install Buildozer and Cython
-        run: |
-          pip install --upgrade pip
-          pip install cython==0.29.36
-          pip install --user --upgrade buildozer
+# (list) Application requirements
+# add python and kivy or other libraries your app needs
+requirements = python3,kivy
 
-      - name: Build APK with Buildozer
-        run: |
-          export PATH=$PATH:~/.local/bin
-          # Android SDK/NDK automatically downloaded and configured by buildozer
-          buildozer -v android debug
+# (str) Supported orientations
+orientation = portrait
 
-      - name: Upload APK Artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: package
-          path: bin/*.apk
+# (list) List of permissions
+android.permissions = INTERNET
+
+# (int) Target Android API, should be as high as possible.
+android.sdk_version = 33
+
+# (str) Android NDK version to use
+android.ndk_version = 25b
+
+# (int) Minimum API your APK / AAB will support
+android.min_api = 21
+
+# (bool) Use AndroidX for Android support library
+android.androidx = True
+
+[buildozer]
+
+# (int) Log level (0 = error only, 1 = info, 2 = debug (with command output))
+log_level = 2
+
+# (int) Display warning if buildozer is run as root (0 = False, 1 = D Angers, 2 = True)
+warn_on_root = 1

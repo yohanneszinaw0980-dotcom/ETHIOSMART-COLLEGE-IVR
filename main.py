@@ -7,7 +7,7 @@ from kivy.uix.scrollview import ScrollView
 from kivy.uix.screenmanager import ScreenManager, Screen
 import os
 import json
-import pyttsx3
+from plyer import tts
 import threading
 
 DATA_FILE = "ivr_complete_data.json"
@@ -50,10 +50,7 @@ class CollegeIVRApp(App):
     def speak(self, text):
         def run_speech():
             try:
-                engine = pyttsx3.init()
-                engine.setProperty('rate', 130)
-                engine.say(text)
-                engine.runAndWait()
+                tts.speak(message=text)
             except Exception as e:
                 print(f"TTS Error: {e}")
         threading.Thread(target=run_speech, daemon=True).start()

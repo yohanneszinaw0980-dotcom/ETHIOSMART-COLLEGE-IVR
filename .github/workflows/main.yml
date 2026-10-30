@@ -47,6 +47,7 @@ jobs:
       - name: Build APK with Buildozer
         run: |
           export PATH=$PATH:~/.local/bin
+          # Android SDK/NDK automatically downloaded and configured by buildozer
           buildozer -v android debug
 
       - name: Upload APK Artifact
@@ -54,4 +55,3 @@ jobs:
         with:
           name: package
           path: bin/*.apk
-          

@@ -36,7 +36,6 @@ jobs:
               pkg-config \
               libncurses5-dev \
               libncursesw5-dev \
-              libtinfo5 \
               libltdl-dev
 
       - name: Install Buildozer and Cython
@@ -55,3 +54,4 @@ jobs:
         with:
           name: package
           path: bin/*.apk
+          
